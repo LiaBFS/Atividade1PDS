@@ -110,6 +110,15 @@ public class TelaAdmin extends JFrame {
 		JButton btnRemove = new JButton("Remover");
 		btnRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				String nome = (String) comboBoxNomePraRemo.getSelectedItem();
+				
+				produtoDAO.excluirProduto(nome);
+	 
+				JOptionPane.showMessageDialog(null, "Produto removido com sucesso!");
+	            comboBoxNomePraRemo.removeItem(nome);
+	            comboBoxPraEditar.removeItem(nome);
+	           
 			}
 		});
 		btnRemove.setBounds(335, 135, 89, 23);
@@ -152,6 +161,40 @@ public class TelaAdmin extends JFrame {
 		contentPane.add(tfNovoPreco);
 		
 		JButton btnEditar = new JButton("Salvar");
+		btnEditar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				String nomeAntigo = (String) comboBoxPraEditar.getSelectedItem();
+		        String novoNome = tfNovoNome.getText().trim();
+		        String novoPreco = tfNovoPreco.getText().trim();
+				
+		        if (novoNome.isEmpty() || novoPreco.isEmpty()) {
+		            JOptionPane.showMessageDialog(null, "Todos os campos são obrigatórios.");
+		            return;
+		        }
+
+		        Produtos produtoAtualizado = new Produtos();
+		        produtoAtualizado.setNome(novoNome);
+		        produtoAtualizado.setPreco(novoPreco);
+
+		        produtoDAO.atualizarProduto(produtoAtualizado, nomeAntigo);
+
+		        
+		        comboBoxPraEditar.removeItem(nomeAntigo);
+		        comboBoxPraEditar.addItem(novoNome);
+
+		        comboBoxNomePraRemo.removeItem(nomeAntigo);
+		        comboBoxNomePraRemo.addItem(novoNome);
+
+		        
+		        tfNovoNome.setText("");
+		        tfNovoPreco.setText("");
+				
+				
+				
+				
+			}
+		});
 		btnEditar.setBounds(335, 236, 89, 23);
 		contentPane.add(btnEditar);
 		
