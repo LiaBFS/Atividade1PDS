@@ -19,7 +19,7 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class TelaInicial extends JFrame {
+public class TelaCadastro extends JFrame {
 
     private static final long serialVersionUID = 1L;
     private JPanel contentPane;
@@ -44,7 +44,7 @@ public class TelaInicial extends JFrame {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    TelaInicial frame = new TelaInicial();
+                    TelaCadastro frame = new TelaCadastro();
                     frame.setVisible(true);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -53,7 +53,7 @@ public class TelaInicial extends JFrame {
         });
     }
 
-    public TelaInicial() {
+    public TelaCadastro() {
         // >>>>>>> Instanciando o DAO aqui <<<<<<
         usuarioDAO = new UsuariosDAO();
 
