@@ -1,4 +1,4 @@
-package telas;
+package model;
 
 public class Produtos {
 	
