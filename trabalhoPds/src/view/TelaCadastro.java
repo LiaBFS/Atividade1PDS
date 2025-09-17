@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.MaskFormatter;
 
 import model.Usuarios;
 import model.UsuariosDAO;
@@ -16,6 +17,8 @@ import javax.swing.ButtonGroup;
 import javax.swing.SwingConstants;
 import javax.swing.JRadioButton;
 import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
@@ -30,14 +33,10 @@ public class TelaCadastro extends JFrame {
     private UsuariosDAO usuarioDAO;  // DAO
     private Usuarios usuario = new Usuarios();
 
-    private void abrirTelaAdmin() {
-        dispose(); 
-        new TelaAdmin().setVisible(true);
-    }
-
-    private void abrirTelaCompras() {
-        dispose(); 
-        new TelaCompras().setVisible(true);
+   
+    private void abrirTelaLogin() {
+    	dispose();
+    	new TelaLogin().setVisible(true);
     }
 
     public static void main(String[] args) {
@@ -64,7 +63,7 @@ public class TelaCadastro extends JFrame {
         setContentPane(contentPane);
         contentPane.setLayout(null);
 
-        JLabel lblBemVindo = new JLabel("Bem Vindo");
+        JLabel lblBemVindo = new JLabel("Crie sua conta!");
         lblBemVindo.setHorizontalAlignment(SwingConstants.CENTER);
         lblBemVindo.setFont(new Font("Tahoma", Font.BOLD, 15));
         lblBemVindo.setBounds(134, 11, 165, 38);
@@ -85,10 +84,25 @@ public class TelaCadastro extends JFrame {
         lblCPF.setBounds(10, 93, 69, 23);
         contentPane.add(lblCPF);
 
-        tfCPF = new JTextField();
+        MaskFormatter cpfMask = null;
+
+		try {
+
+		    cpfMask = new MaskFormatter("###########"); // 11 números
+
+		    cpfMask.setPlaceholderCharacter('_'); // mostra "_" nos espaços vazios
+
+		} catch (Exception e) {
+
+		    e.printStackTrace();
+
+		}
+
+         JFormattedTextField tfCPF = new JFormattedTextField(cpfMask);
         tfCPF.setColumns(10);
-        tfCPF.setBounds(73, 93, 351, 20);
+        tfCPF.setBounds(73, 110, 351, 20);
         contentPane.add(tfCPF);
+
 
         JLabel lblAdmin = new JLabel("Deseja se cadastrar como administrador?");
         lblAdmin.setHorizontalAlignment(SwingConstants.CENTER);
@@ -165,26 +179,30 @@ public class TelaCadastro extends JFrame {
                         tfsenhaAdmin.setText("");
                         return;
                     }
+                    
+                    
 
                     Usuarios novoUsuario = new Usuarios();
                     novoUsuario.setUser(tfUsuario.getText());
                     novoUsuario.setCpf(tfCPF.getText());
+                    novoUsuario.setAdmin(true);
 
                     usuarioDAO.adicionarUsuario(novoUsuario);
 
                     JOptionPane.showMessageDialog(null, "Cadastro realizado!");
-                    abrirTelaAdmin();
+                    abrirTelaLogin();
                 }
 
                 if (rdbtnCliente.isSelected()) {
                     Usuarios novoUsuario = new Usuarios();
                     novoUsuario.setUser(tfUsuario.getText());
                     novoUsuario.setCpf(tfCPF.getText());
+                    novoUsuario.setAdmin(false);
 
                     usuarioDAO.adicionarUsuario(novoUsuario);
 
                     JOptionPane.showMessageDialog(null, "Cadastro realizado!");
-                    abrirTelaCompras();
+                    abrirTelaLogin();
                 }
             }
         });
