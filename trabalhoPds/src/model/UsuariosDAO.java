@@ -1,82 +1,88 @@
 package model;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import model.Usuarios;
+import model.BancoDeDados;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UsuariosDAO {
-	
-	public void adicionarUsuario(Usuarios usuario) {
+
+    // Inserir usuário
+    public void inserirUsuario(Usuarios usuario) {
         String sql = "INSERT INTO usuarios (user, cpf, admin) VALUES (?, ?, ?)";
-        Connection conexao = null;
-        PreparedStatement pstm = null;
+        try (Connection conn = BancoDeDados.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        try {
-            conexao = BancoDeDados.conectar();
-            pstm = conexao.prepareStatement(sql);
-            pstm.setString(1, usuario.getUser());
-            pstm.setString(2, usuario.getCpf());
-            pstm.setBoolean(3, usuario.isAdmin());
-            
-            pstm.executeUpdate();
+            stmt.setString(1, usuario.getUser());
+            stmt.setString(2, usuario.getCpf());
+            stmt.setBoolean(3, usuario.isAdmin());
+
+            stmt.executeUpdate();
+            System.out.println("Usuário cadastrado com sucesso!");
         } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-        	BancoDeDados.desconectar(conexao);
-            if (pstm != null) {
-                try {
-                    pstm.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            System.err.println("Erro ao inserir usuário: " + e.getMessage());
         }
     }
-	
-	
-	public Usuarios pesquisarUsuariosPorUserCPF(Usuarios usuario) {
-        String sql = "SELECT * FROM usuarios where user = ? and cpf = ? and admin = ?";
-        Connection conexao = null;
-        PreparedStatement pstm = null;
-        ResultSet rset = null; // Objeto que guarda o resultado da consulta 
 
-        try {
-            conexao = BancoDeDados.conectar();
-            pstm = conexao.prepareStatement(sql);
-            
-            System.out.println(usuario.getUser());
-            System.out.println(usuario.getCpf());
-            System.out.println(usuario.isAdmin());
-            pstm.setString(1, usuario.getUser());
-            pstm.setString(2, usuario.getCpf());
-            pstm.setBoolean(3, usuario.isAdmin());
+    // Buscar usuário por CPF e nome (login)
+    public Usuarios buscarUsuario(String user, String cpf) {
+        String sql = "SELECT * FROM usuarios WHERE user = ? AND cpf = ?";
+        try (Connection conn = BancoDeDados.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            rset = pstm.executeQuery();
-            System.out.println(rset);
-            
-            if (rset.next()) {System.out.println("sadouty");
-            	
-                usuario.setCpf(rset.getString("cpf"));
-                usuario.setUser(rset.getString("user"));
-                usuario.setAdmin(rset.getBoolean("admin"));
-                	        return usuario;
+            stmt.setString(1, user);
+            stmt.setString(2, cpf);
 
-            }
-            else {
-            	
-            	return null;
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new Usuarios(
+                        rs.getString("user"),
+                        rs.getString("cpf"),
+                        rs.getBoolean("admin")
+                );
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-        	BancoDeDados.desconectar(conexao);
-            // Fechar recursos
+            System.err.println("Erro ao buscar usuário: " + e.getMessage());
         }
-		return null;
+        return null;
     }
-	
-	
 
+    // Listar todos os usuários
+    public List<Usuarios> listarUsuarios() {
+        List<Usuarios> usuarios = new ArrayList<>();
+        String sql = "SELECT * FROM usuarios";
+        try (Connection conn = BancoDeDados.conectar();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Usuarios u = new Usuarios(
+                        rs.getString("user"),
+                        rs.getString("cpf"),
+                        rs.getBoolean("admin")
+                );
+                usuarios.add(u);
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao listar usuários: " + e.getMessage());
+        }
+        return usuarios;
+    }
+
+    // Remover usuário
+    public void removerUsuario(String cpf) {
+        String sql = "DELETE FROM usuarios WHERE cpf = ?";
+        try (Connection conn = BancoDeDados.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, cpf);
+            stmt.executeUpdate();
+            System.out.println("Usuário removido!");
+        } catch (SQLException e) {
+            System.err.println("Erro ao remover usuário: " + e.getMessage());
+        }
+    }
 }
-

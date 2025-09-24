@@ -1,81 +1,120 @@
 package model;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import model.Produtos;
+import model.BancoDeDados;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProdutosDAO {
-	
-	public void adicionarProduto(Produtos produto) {
-        String sql = "INSERT INTO produtos (nome, preco) VALUES (?, ?)";
-        Connection conexao = null;
-        PreparedStatement pstm = null;
 
-        try {
-            conexao = BancoDeDados.conectar();
-            pstm = conexao.prepareStatement(sql);
-            pstm.setString(1, produto.getNome());
-            pstm.setString(2, produto.getPreco());
-            
-            pstm.executeUpdate();
+    // Inserir produto
+    public void inserirProduto(Produtos produto) {
+        String sql = "INSERT INTO produtos (nome, preco, quantidade) VALUES (?, ?, ?)";
+        try (Connection conn = BancoDeDados.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, produto.getNome());
+            stmt.setDouble(2, produto.getPreco());
+            stmt.setInt(3, produto.getQuantidade());
+
+            stmt.executeUpdate();
+            System.out.println("Produto cadastrado!");
         } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-        	BancoDeDados.desconectar(conexao);
-            if (pstm != null) {
-                try {
-                    pstm.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            System.err.println("Erro ao inserir produto: " + e.getMessage());
         }
     }
-	
-	
-	
-	public void atualizarProduto(Produtos produto, String nomeAntigo) {
-	    String sql = "UPDATE produtos SET nome = ?, preco = ? WHERE nome = ?";
-	    Connection conexao = null;
-	    PreparedStatement pstm = null;
 
-	    try {
-	        conexao = BancoDeDados.conectar();
-	        pstm = conexao.prepareStatement(sql);
-	        pstm.setString(1, produto.getNome());
-	        pstm.setString(2, produto.getPreco());
-	        pstm.setString(3, nomeAntigo);
-	        pstm.executeUpdate();
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    } finally {
-	        BancoDeDados.desconectar(conexao);
-	    }
-	}
-	
+    // Atualizar produto (nome, preço, quantidade)
+    public void atualizarProduto(String nomeOriginal, Produtos produto) {
+        String sql = "UPDATE produtos SET nome = ?, preco = ?, quantidade = ? WHERE nome = ?";
+        try (Connection conn = BancoDeDados.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-    // DELETE
-	
-    public void excluirProduto(String nome) {
+            stmt.setString(1, produto.getNome());
+            stmt.setDouble(2, produto.getPreco());
+            stmt.setInt(3, produto.getQuantidade());
+            stmt.setString(4, nomeOriginal);
+
+            stmt.executeUpdate();
+            System.out.println("Produto atualizado!");
+        } catch (SQLException e) {
+            System.err.println("Erro ao atualizar produto: " + e.getMessage());
+        }
+    }
+
+    // Remover produto
+    public void removerProduto(String nome) {
         String sql = "DELETE FROM produtos WHERE nome = ?";
-        Connection conexao = null;
-        PreparedStatement pstm = null;
+        try (Connection conn = BancoDeDados.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        try {
-            conexao = BancoDeDados.conectar();
-            pstm = conexao.prepareStatement(sql);
-            pstm.setString(1, nome);
-            pstm.executeUpdate();
+            stmt.setString(1, nome);
+            stmt.executeUpdate();
+            System.out.println("Produto removido!");
         } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-        	BancoDeDados.desconectar(conexao);
+            System.err.println("Erro ao remover produto: " + e.getMessage());
         }
     }
-    
-    
-    
+
+    // Buscar produto por nome
+    public Produtos buscarProduto(String nome) {
+        String sql = "SELECT * FROM produtos WHERE nome = ?";
+        try (Connection conn = BancoDeDados.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, nome);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new Produtos(
+                        rs.getString("nome"),
+                        rs.getDouble("preco"),
+                        rs.getInt("quantidade")
+                );
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar produto: " + e.getMessage());
+        }
+        return null;
+    }
+
+    // Listar todos os produtos
+    public List<Produtos> listarProdutos() {
+        List<Produtos> produtos = new ArrayList<>();
+        String sql = "SELECT * FROM produtos";
+        try (Connection conn = BancoDeDados.conectar();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Produtos p = new Produtos(
+                        rs.getString("nome"),
+                        rs.getDouble("preco"),
+                        rs.getInt("quantidade")
+                );
+                produtos.add(p);
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao listar produtos: " + e.getMessage());
+        }
+        return produtos;
+    }
+
+
+    public void diminuirEstoque(String nome, int quantidade) {
+        String sql = "UPDATE produtos SET quantidade = quantidade - ? WHERE nome = ?";
+        try (Connection conexao = BancoDeDados.conectar();
+             PreparedStatement pstm = conexao.prepareStatement(sql)) {
+
+            pstm.setInt(1, quantidade);
+            pstm.setString(2, nome);
+            pstm.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao atualizar estoque: " + e.getMessage());
+        }
+    }
 
 }
-
-

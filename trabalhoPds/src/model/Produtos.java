@@ -1,42 +1,44 @@
 package model;
 
 public class Produtos {
-	
-	private String nome;
-	private String preco;
-	
-	
-	public Produtos(String nome, String preco) {
-		
-		this.nome = nome;
-		this.preco = preco;
-		
-	}
-	
-	public Produtos() {}
+    private String nome;
+    private double preco;
+    private int quantidade;
 
-	public void setNome(String nome) {
-		this.nome = nome;
-	}
+    public Produtos() {}
 
+    public Produtos(String nome, double preco, int quantidade) {
+        this.nome = nome;
+        this.preco = preco;
+        this.quantidade = quantidade;
+    }
 
+    public String getNome() {
+        return nome;
+    }
 
-	public void setPreco(String preco) {
-		this.preco = preco;
-	}
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
 
+    public double getPreco() {
+        return preco;
+    }
 
+    public void setPreco(double preco) {
+        this.preco = preco;
+    }
 
-	public String getNome() {
-		return nome;
-	}
+    public int getQuantidade() {
+        return quantidade;
+    }
 
-	
+    public void setQuantidade(int quantidade) {
+        this.quantidade = quantidade;
+    }
 
-	public String getPreco() {
-		return preco;
-	}
-
-	
-
+    @Override
+    public String toString() {
+        return nome + " - R$" + preco + " (Estoque: " + quantidade + ")";
+    }
 }
