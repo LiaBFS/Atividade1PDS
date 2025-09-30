@@ -1,0 +1,14 @@
+CREATE SCHEMA sistemaMercado;
+USE sistemaMercado;
+
+CREATE TABLE usuarios (
+    user VARCHAR(30) NOT NULL,
+    cpf VARCHAR(11) NOT NULL PRIMARY KEY,
+    admin BOOLEAN NOT NULL DEFAULT 0
+);
+
+CREATE TABLE produtos (
+    nome VARCHAR(30) NOT NULL PRIMARY KEY,
+    preco FLOAT NOT NULL,
+    quantidade INT NOT NULL DEFAULT 0
+);
